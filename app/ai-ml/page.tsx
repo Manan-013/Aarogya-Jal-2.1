@@ -129,8 +129,8 @@ export default function AIMLInsightsPage() {
         </p>
 
         {/* Search & filters under the headline */}
-        <div className="mt-6 flex flex-wrap gap-3 items-center">
-          <div className="flex-1 min-w-[220px]">
+        <div className="mt-6 flex flex-col md:flex-row gap-3 items-center">
+          <div className="w-full md:flex-1">
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -141,7 +141,7 @@ export default function AIMLInsightsPage() {
             />
           </div>
 
-          <div>
+          <div className="w-full md:w-auto">
             <label htmlFor="areaSelect" className="sr-only">
               Area
             </label>
@@ -149,7 +149,7 @@ export default function AIMLInsightsPage() {
               id="areaSelect"
               value={area}
               onChange={(e) => setArea(e.target.value)}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               {areas.map((a) => (
                 <option key={a} value={a}>
@@ -159,7 +159,7 @@ export default function AIMLInsightsPage() {
             </select>
           </div>
 
-          <div>
+          <div className="w-full md:w-auto">
             <label htmlFor="deviceSelect" className="sr-only">
               Device
             </label>
@@ -167,7 +167,7 @@ export default function AIMLInsightsPage() {
               id="deviceSelect"
               value={device}
               onChange={(e) => setDevice(e.target.value)}
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               {devices.map((d) => (
                 <option key={d} value={d}>
@@ -241,7 +241,7 @@ export default function AIMLInsightsPage() {
       {/* Tabs + Charts */}
       <div className="max-w-7xl mx-auto">
         <Tabs defaultValue={activeTab}>
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto">
             <TabsTrigger value="predictions">Disease Predictions</TabsTrigger>
             <TabsTrigger value="confidence">Model Confidence</TabsTrigger>
             <TabsTrigger value="trends">Weekly Trends</TabsTrigger>
@@ -255,7 +255,7 @@ export default function AIMLInsightsPage() {
                 <CardHeader>
                   <CardTitle>Top Disease Predictions</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-gray-100">
@@ -418,7 +418,7 @@ export default function AIMLInsightsPage() {
         </div>
 
         {/* Cards Row */}
-        <div className="flex justify-center items-stretch gap-6">
+        <div className="flex flex-col md:flex-row justify-center items-stretch gap-6">
           {/* AI/ML Model */}
           <div className="bg-white shadow-md rounded-lg p-4 flex-1 text-center">
             <p className="text-gray-500 font-medium">AI/ML Model</p>

@@ -221,6 +221,25 @@ const Modal = ({ isOpen, onClose, data }) => {
   );
 };
 
+interface ForecastItem {
+  day: string;
+  date: string;
+  value: number;
+  trend: string;
+  icon: string;
+  high: number;
+  low: number;
+}
+
+interface DailyForecast {
+  pH?: ForecastItem;
+  Turbidity?: ForecastItem;
+  Temperature?: ForecastItem;
+  TDS?: ForecastItem;
+  "Water Level"?: ForecastItem;
+  "Dissolved Oxygen"?: ForecastItem;
+}
+
 // --- Corrected Main Component ---
 const WaterQualityForecastPage = () => {
   const today = new Date();
@@ -228,10 +247,10 @@ const WaterQualityForecastPage = () => {
   const [selectedDate, setSelectedDate] = useState(today);
   const [searchDateInput, setSearchDateInput] = useState(format(today, "yyyy-MM-dd"));
   const [selectedRegion, setSelectedRegion] = useState(regions[0]);
-  const [currentDayForecast, setCurrentDayForecast] = useState({});
-  const [sevenDayForecast, setSevenDayForecast] = useState({});
+  const [currentDayForecast, setCurrentDayForecast] = useState<DailyForecast>({});
+  const [sevenDayForecast, setSevenDayForecast] = useState<{ [key: string]: ForecastItem[] }>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalData, setModalData] = useState(null);
+  const [modalData, setModalData] = useState<ForecastItem | null>(null);
 
   useEffect(() => {
     // Find the index of the selected date in our data
@@ -298,8 +317,8 @@ const WaterQualityForecastPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-50">
       {/* Top Search Bar and Icons */}
-      <header className="sticky top-0 z-10 w-full bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4 w-full max-w-xl">
+      <header className="sticky top-0 z-10 w-full bg-white dark:bg-gray-800 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full max-w-xl">
           <Input
             type="date"
             className="w-full max-w-xs p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600"
@@ -317,7 +336,7 @@ const WaterQualityForecastPage = () => {
               </option>
             ))}
           </select>
-          <Button onClick={handleSearch} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          <Button onClick={handleSearch} className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
             Search
           </Button>
         </div>
@@ -338,11 +357,11 @@ const WaterQualityForecastPage = () => {
         <div className="lg:flex-1 space-y-6">
           {/* Main Forecast Card */}
           <Card className="p-6 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-900 text-blue-900 dark:text-blue-50 rounded-2xl shadow-lg">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xl font-semibold">
+            <CardHeader className="flex flex-col md:flex-row items-center justify-between pb-2">
+              <CardTitle className="text-xl font-semibold text-center md:text-left">
                 Water Quality in {selectedRegion}, {format(selectedDate, "EEE, MMM d")}
               </CardTitle>
-              <div className="flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-200">
+              <div className="flex items-center space-x-2 text-sm text-blue-700 dark:text-blue-200 mt-2 md:mt-0">
                 <span>Updated over an hour ago</span>
                 <span className="flex items-center space-x-1">
                   <span>°C</span>

@@ -125,7 +125,7 @@ export default function AlertsPage() {
         </p>
 
         {/* Tabs */}
-        <div className="flex space-x-3 mt-6 mb-4">
+        <div className="flex flex-wrap space-x-3 mt-6 mb-4">
           {["All", "Pending", "Under Process", "Resolved"].map((tab) => (
             <button
               key={tab}
@@ -142,7 +142,7 @@ export default function AlertsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl shadow overflow-hidden">
+        <div className="bg-white rounded-xl shadow overflow-hidden hidden md:block">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50 text-gray-700 text-sm">
               <tr>
@@ -201,6 +201,66 @@ export default function AlertsPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Cards for mobile */}
+        <div className="grid gap-4 md:hidden">
+          {filteredAlerts.map((a) => (
+            <div key={a.id} className="bg-white rounded-xl shadow p-4 space-y-4">
+              <div>
+                <h3 className="font-medium text-gray-900">{a.alert}</h3>
+                <p className="text-xs text-gray-500">{a.location}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-gray-500">Severity</p>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getSeverityBadge(
+                      a.severity
+                    )}`}
+                  >
+                    <AlertTriangle className="w-3 h-3" /> {a.severity}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-gray-500">Type</p>
+                  <p className="text-gray-800">{a.type}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500">Status</p>
+                  {getStatusBadge(a.status)}
+                </div>
+                <div>
+                  <p className="text-gray-500">Created</p>
+                  <p className="text-gray-600">{a.created}</p>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    >
+                      <MoreHorizontal className="w-5 h-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => updateStatus(a.id, "Under Process")}>
+                      Mark as Under Process
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => updateStatus(a.id, "Resolved")}>
+                      Mark as Resolved
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => updateStatus(a.id, "Fake Report")}>
+                      Mark as Fake Report
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

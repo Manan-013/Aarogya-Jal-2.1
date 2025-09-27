@@ -23,51 +23,58 @@ export default function ReportsPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [newReport, setNewReport] = useState({
+  const [newReport, setNewReport] = useState<{
+    location: string;
+    disease: string;
+    cases: number;
+    severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    reportDate: string;
+  }>({
     location: "",
     disease: "",
     cases: 0,
     severity: "LOW",
-    reportDate: new Date().toISOString().split('T')[0], // Initialize with today's date
+    reportDate: new Date().toISOString().split('T')[0],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { token } = useAuth();
 
   useEffect(() => {
-    if (token) {
-      fetchReports();
-    }
-  }, [token]);
-
-  
-
-  const fetchReports = async () => {
     setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/reports", {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
-      console.log("API Response for reports:", res);
-      if (!res.ok) {
-        throw new Error("Failed to fetch reports");
-      }
-      const data = await res.json();
-      setReports(data);
-    } catch (error) {
-      console.error("Failed to fetch reports:", error);
-      setError("Failed to fetch reports. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    const mockReports: Report[] = [
+      {
+        id: "1",
+        reporter: { name: "Asha Worker 1", role: "ASHA" },
+        location: "Majuli, Assam",
+        disease: "Diarrhea",
+        cases: 5,
+        severity: "MEDIUM",
+        createdAt: new Date().toISOString(),
+        reportDate: new Date().toISOString(),
+      },
+      {
+        id: "2",
+        reporter: { name: "Doctor 1", role: "Doctor" },
+        location: "Churachandpur, Manipur",
+        disease: "Typhoid",
+        cases: 2,
+        severity: "HIGH",
+        createdAt: new Date().toISOString(),
+        reportDate: new Date().toISOString(),
+      },
+    ];
+    setReports(mockReports);
+    setLoading(false);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewReport((prev) => ({ ...prev, [name]: value }));
+    if (name === "severity") {
+      setNewReport((prev) => ({ ...prev, severity: value as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" }));
+    } else {
+      setNewReport((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,35 +86,23 @@ export default function ReportsPage() {
       return;
     }
 
-    try {
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          ...newReport,
-          cases: Number(newReport.cases),
-        }),
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to add report");
-      }
-      setShowModal(false);
-      fetchReports();
-      setNewReport({
-        location: "",
-        disease: "",
-        cases: 0,
-        severity: "LOW",
-        reportDate: new Date().toISOString().split('T')[0],
-      });
-    } catch (error) {
-      console.error("Failed to add report:", error);
-      setError(`Failed to add report: ${error.message}`);
-    }
+    const reportToAdd: Report = {
+      id: (reports.length + 1).toString(),
+      reporter: { name: "Mock User", role: "Admin" },
+      ...newReport,
+      cases: Number(newReport.cases),
+      createdAt: new Date().toISOString(),
+    };
+
+    setReports([...reports, reportToAdd]);
+    setShowModal(false);
+    setNewReport({
+      location: "",
+      disease: "",
+      cases: 0,
+      severity: "LOW",
+      reportDate: new Date().toISOString().split('T')[0],
+    });
   };
 
   const filteredReports = reports.slice(0, -6).filter(
@@ -120,8 +115,8 @@ export default function ReportsPage() {
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen text-gray-900">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="text-center md:text-left">
           <h1 className="text-2xl font-bold">ASHA & Doctor Reports</h1>
           <p className="text-gray-500">
             Review and manage health incident reports from ASHA volunteers and field teams
@@ -129,7 +124,7 @@ export default function ReportsPage() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-black text-white text-sm rounded-lg shadow hover:bg-gray-800"
+          className="mt-4 md:mt-0 flex items-center gap-2 px-4 py-2 bg-black text-white text-sm rounded-lg shadow hover:bg-gray-800"
         >
           <Plus className="w-4 h-4" /> Add Manual Report
         </button>
@@ -147,7 +142,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hidden md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-600 border-b border-gray-200">
@@ -205,10 +200,57 @@ export default function ReportsPage() {
         </table>
       </div>
 
+      {/* Cards for mobile */}
+      <div className="grid gap-4 md:hidden">
+        {filteredReports.map((r) => (
+          <div key={r.id} className="bg-white rounded-xl shadow p-4 space-y-4">
+            <div>
+              <div className="font-medium text-gray-900">{r.reporter?.name || 'N/A'}</div>
+              <div className="text-xs text-gray-500">{r.reporter?.role || 'N/A'}</div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-500">Location</p>
+                <p className="text-gray-700">{r.location}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Disease</p>
+                <p className="text-gray-700">{r.disease}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Cases</p>
+                <p className="text-gray-700">{r.cases}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Severity</p>
+                <Badge
+                  variant="outline"
+                  className={`capitalize px-2 py-1 text-xs rounded-md font-medium ${
+                    r.severity === "CRITICAL"
+                      ? "bg-red-100 text-red-700 border-red-200"
+                      : r.severity === "HIGH"
+                      ? "bg-orange-100 text-orange-700 border-orange-200"
+                      : r.severity === "MEDIUM"
+                      ? "bg-yellow-100 text-yellow-700 border-yellow-200"
+                      : "bg-green-100 text-green-700 border-green-200"
+                  }`}
+                >
+                  {r.severity.toLowerCase()}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-gray-500">Report Date</p>
+                <p className="text-gray-500">{new Date(r.reportDate).toLocaleDateString()}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
             {/* Close button */}
             <button
               className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"

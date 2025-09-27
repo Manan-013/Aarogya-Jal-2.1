@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { cn } from "@/lib/utils";
 
 export function Tabs({
   defaultValue,
@@ -24,13 +25,15 @@ export function TabsList({
   children,
   activeTab,
   setActiveTab,
+  className,
 }: {
   children: React.ReactNode;
   activeTab?: string;
   setActiveTab?: (val: string) => void;
+  className?: string;
 }) {
   return (
-    <div className="mb-3 flex gap-2 border-b">
+    <div className={cn("mb-3 flex gap-2 border-b", className)}>
       {React.Children.map(children, (child: any) =>
         React.cloneElement(child, { activeTab, setActiveTab })
       )}
